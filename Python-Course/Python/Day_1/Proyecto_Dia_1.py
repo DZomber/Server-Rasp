@@ -1,0 +1,1 @@
+print('Tu cerveza se llamara:!!! \n"' + input('Cual es tu planeta favorito?: ') + " "+ input("Cual es tu pais que te gustaria viajar?:")+'"')

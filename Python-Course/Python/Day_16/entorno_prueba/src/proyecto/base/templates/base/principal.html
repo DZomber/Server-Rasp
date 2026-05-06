@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista de pendientes</title>
+    <style>
+        body {
+            background-color: #E5D4D1;
+            font-family: 'Abel', sans-serif;
+            padding-top: 60px;
+        }
+        .container{max-width: 550px;
+            margin: auto;
+            background-color: #E1DFDE;
+            -webkit-box-shadow: 2px 2px 13px -4px rgba(0,0,0, 0.21);
+            box-shadow: 2px 2px 13px -4px rgba(0,0,0, 0.21);
+        }
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6{font-family: 'Lato', sans-serif;}
+        a,
+        p{
+            color: blue
+        }
+        .barra-superior{
+            display: flex;
+            justify-content: space-between;
+            color: #ffffff;
+            padding: 10px;
+            border-radius: 5px 5px 0 0;
+            background: linear-gradient(90deg, #4D0FE3 0%, #3A8ACC 43%, #3A8ACC 100%);
+        }
+        .barra-superior a {
+            color: rgb(255,255,255);
+            text-decoration: none;
+        }
+        .envoltorio-items-tarea {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+            background-color: #ffffff;
+            border-top: 1px solid rgb(225,225,225);
+            
+        }
+
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        {% block content %}
+        {% endblock content %}
+    </div>
+</body>
+</html>

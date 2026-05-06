@@ -1,0 +1,100 @@
+import cv2
+import face_recognition
+import face_recognition as fr
+import os
+import numpy as np
+from datetime import datetime
+
+#crear base de datos
+ruta = 'Empleados'
+mis_images = []
+nombres_empleados = []
+
+lista_empleados = os.listdir(ruta)
+#print(lista_empleados)
+
+for nombre in lista_empleados:
+    imagen_actual = cv2.imread(f'{ruta}\\{nombre}')
+    mis_images.append(imagen_actual)
+    nombres_empleados.append(os.path.splitext(nombre)[0])
+
+print(nombres_empleados)
+
+#codificar imagenes
+def codificar(imagenes):
+
+    # crear una lista nueva
+    lista_codificada = []
+    #pasar todas las imagenes a rgb
+    for imagen in imagenes:
+        image = cv2.cvtColor(imagen, cv2.COLOR_BGR2RGB)
+
+        #codificar
+        codificado = face_recognition.face_encodings(image)[0]
+
+        #Agregar a la lista
+        lista_codificada.append(codificado)
+
+        #devolver lista codificada
+    return lista_codificada
+
+#registrar los ingresos
+def registrar_ingresos(persona):
+    f = open('registro.csv','r+')
+    lista_datos = f.readlines()
+    nombre_registro = []
+    for linea in lista_datos:
+        ingreso = linea.split(',')
+        nombre_registro.append(ingreso[0])
+    if persona not in nombre_registro:
+        ahora = datetime.now()
+        string_ahora = ahora.strftime('%H:%M:%S')
+        f.writelines(f'\n{persona},{string_ahora}')
+
+
+
+
+lista_empleados_codificada = codificar(mis_images)
+print(len(lista_empleados_codificada))
+
+#tomar una imagen de camara web
+captura = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+#leer imagen de la camara
+exito, imagen =captura.read()
+if not exito:
+    print('No se ha podido tomar la captura')
+else:
+    #reconocer cara en captura
+    cara_captura = fr.face_locations(imagen)
+
+    #codificar cara codificada
+    cara_captura_codificada = fr.face_encodings(imagen,cara_captura)
+
+    #buscar coincidencias
+    for caracodif, caraubic in zip(cara_captura_codificada, cara_captura):
+
+        coincidencia = fr.compare_faces(lista_empleados_codificada,caracodif)
+        distancia = fr.face_distance(lista_empleados_codificada,caracodif)
+
+        print(distancia)
+
+        indice_coincidencia = np.argmin(distancia)
+
+        #mostrar coincidencias si las hay
+        if distancia[indice_coincidencia] > 0.6:
+            print('No coincide con ninguno de nuestros empleados')
+        else:
+            print('Bienvenido al trabajo')
+            #buscar el nombre del empleado encontrado
+            nombre = nombres_empleados[indice_coincidencia]
+
+            y1,x2,y2,x1 = caraubic
+            cv2.rectangle(imagen,(x1,y1),(x2,y2),(0,255,0),2)
+            cv2.rectangle(imagen,(x1,y2-35),(x2,y2),(0,0,255),cv2.FILLED)
+            cv2.putText(imagen,nombre,(x1+6,y2-6),cv2.FONT_HERSHEY_PLAIN,1,(255,255,255),2)
+            registrar_ingresos(nombre)
+
+            #mostrar la imagen obtenida
+            cv2.imshow('Imagen web', imagen)
+            #Mantener imagen abierta
+            cv2.waitKey(0)
