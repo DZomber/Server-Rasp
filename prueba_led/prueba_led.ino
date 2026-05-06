@@ -1,6 +1,13 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
 
+#include <Wire.h> 
+#include <LiquidCrystal_I2C.h>
+
+int lcdColumns = 16;
+int lcdRows = 2;
+
+LiquidCrystal_I2C lcd(0x27, lcdColumns, lcdRows);  
 
 // ==========================================
 // 1. CONFIGURATION (Edit these)
@@ -34,6 +41,8 @@ const long interval = 5000; // Send data every 5 seconds
 
 #define LED_PIN 2 // Onboard LED
 
+
+
 // ==========================================
 // 3. SETUP WIFI
 // ==========================================
@@ -43,18 +52,29 @@ void setup_wifi() {
   Serial.print("Connecting to WiFi: ");
   Serial.println(ssid);
 
+  lcd.setCursor(0,0);
+  lcd.print("Connect to WiFi:");
+  lcd.setCursor(0,1);
+  lcd.print(ssid);
+
+
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
 
   while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
+    lcd.clear();
+    lcd.setCursor(0,1);
+    lcd.print(".");
 
-  Serial.println("");
-  Serial.println("WiFi connected");
-  Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());
+  }  
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("WiFi connected");
+  lcd.setCursor(0,1);
+  lcd.print("IP:");
+  lcd.setCursor(4,1);
+  lcd.print(WiFi.localIP());
+  
 }
 
 // ==========================================
@@ -119,9 +139,15 @@ void reconnect() {
 // 6. MAIN SETUP
 // ==========================================
 void setup() {
+  lcd.init();
+  lcd.backlight();
+
+
   Serial.begin(115200);
   pinMode(LED_PIN, OUTPUT);
   
+ 
+
   setup_wifi();
   
   client.setServer(mqtt_server, mqtt_port);
